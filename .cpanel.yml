@@ -1,6 +1,6 @@
 ---
 deployment:
   tasks:
-    # No npm install and no build runs on cPanel.
-    # GitHub Actions creates deploy/Lien-Phat-AI-cPanel-Prebuilt.zip.
+    # The Git checkout remains the source repository.
+    # This task deploys the already-built package to ~/lien-phat-ai-production.
     - /bin/bash scripts/cpanel-deploy.sh

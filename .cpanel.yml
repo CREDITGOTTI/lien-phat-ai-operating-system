@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    # cPanel Git Version Control deployment for the LIEN PHAT AI Node/TanStack app.
+    # Keep the cPanel Node Application Root pointed at this repository directory.
+    - /usr/bin/env npm install --include=dev --no-package-lock
+    - /usr/bin/env NITRO_PRESET=node-server npm run build
+    - /bin/mkdir -p tmp
+    - /usr/bin/touch tmp/restart.txt

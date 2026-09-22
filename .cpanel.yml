@@ -1,6 +1,7 @@
 ---
 deployment:
   tasks:
-    # The Git checkout remains the source repository.
-    # This task deploys the already-built package to ~/lien-phat-ai-production.
+    # Diagnostic marker: proves cPanel actually executed this deployment YAML.
+    - /bin/bash -lc 'date -u > "$HOME/lien-phat-cpanel-trigger.txt"; git rev-parse HEAD >> "$HOME/lien-phat-cpanel-trigger.txt"'
+    # Deploy the already-built package outside the managed Git checkout.
     - /bin/bash scripts/cpanel-deploy.sh

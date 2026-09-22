@@ -1,7 +1,6 @@
 ---
 deployment:
   tasks:
-    # cPanel Git Version Control runs this from the repository.
-    # The script detects Node, installs dependencies, builds the Nitro server,
-    # verifies the output, writes deployment.log, and restarts Passenger.
+    # No npm install and no build runs on cPanel.
+    # GitHub Actions creates deploy/Lien-Phat-AI-cPanel-Prebuilt.zip.
     - /bin/bash scripts/cpanel-deploy.sh

@@ -1,0 +1,69 @@
+name: Build cPanel Prebuilt Package
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "deploy/Lien-Phat-AI-cPanel-Prebuilt.zip"
+      - "deploy/build-info.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cpanel-prebuilt-main
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install build dependencies
+        run: npm install --include=dev --no-package-lock --no-audit --no-fund
+
+      - name: Build production Node server
+        env:
+          NITRO_PRESET: node-server
+          VITE_SUPABASE_URL: https://bmbdbugimtbridcpwrmg.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_lgLCp0Ba3DOekDmted2HvQ_swMuZlED
+        run: npm run build
+
+      - name: Verify build
+        run: |
+          test -f .output/server/index.mjs
+          test -d .output/public
+
+      - name: Create ready-to-run cPanel package
+        run: |
+          mkdir -p deploy
+          rm -f deploy/Lien-Phat-AI-cPanel-Prebuilt.zip
+          zip -qr deploy/Lien-Phat-AI-cPanel-Prebuilt.zip .output
+          {
+            echo "Source commit: $GITHUB_SHA"
+            echo "Built by: GitHub Actions"
+            echo "Runtime: Node 22 / Nitro node-server"
+            echo "Built at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > deploy/build-info.txt
+
+      - name: Commit prebuilt package
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f deploy/Lien-Phat-AI-cPanel-Prebuilt.zip deploy/build-info.txt
+          if git diff --cached --quiet; then
+            echo "Prebuilt package is already current."
+            exit 0
+          fi
+          git commit -m "chore: refresh prebuilt cPanel package [skip ci]"
+          git push
